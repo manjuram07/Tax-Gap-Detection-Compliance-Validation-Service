@@ -14,6 +14,8 @@ public class ValidationRule {
 
     private LocalDate date;
 
+
+
     private BigDecimal amount;
 
     private String customerId;
