@@ -1,33 +1,11 @@
 package com.bank.dto;
 
+import java.util.List;
 
-public class BatchTransactionResponse {
-
-    private String batchId;
-    private String status;
-    private String message;
-
-    public String getBatchId() {
-        return batchId;
-    }
-
-    public void setBatchId(String batchId) {
-        this.batchId = batchId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
+public record BatchTransactionResponse(
+        int totalTransactions,
+        int successfulTransactions,
+        int failedTransactions,
+        List<TaxTransactionResponse> transactions
+) {
 }

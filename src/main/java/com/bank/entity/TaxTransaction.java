@@ -1,6 +1,5 @@
 package com.bank.entity;
 
-import com.bank.enums.ComplianceStatus;
 import com.bank.enums.TransactionType;
 import com.bank.enums.ValidationStatus;
 import jakarta.persistence.*;
@@ -14,12 +13,12 @@ import java.util.UUID;
 
 @Entity
 @Table(
-        name = "tax_transactions",
-        indexes = {
-                @Index(name = "idx_tx_customer", columnList = "customer_id"),
-                @Index(name = "idx_tx_date", columnList = "transaction_date"),
-                @Index(name = "idx_tx_compliance", columnList = "compliance_status")
-        }
+        name = "tax_transactions"
+//        indexes = {
+//                @Index(name = "idx_tx_customer", columnList = "customer_id"),
+//                @Index(name = "idx_tx_date", columnList = "transaction_date"),
+//                @Index(name = "idx_tx_compliance", columnList = "compliance_status")
+//        }
 )
 @Getter
 @Setter
@@ -30,8 +29,8 @@ public class TaxTransaction {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "transaction_id")
-    private String transactionId;
+    @Column(name = "transaction_id", unique = true, nullable = false)
+    private UUID transactionId;
 
     @Column(name = "transaction_date")
     private LocalDate date;
@@ -58,19 +57,6 @@ public class TaxTransaction {
 
     @Column(name = "failure_reason", columnDefinition = "TEXT")
     private String failureReason;
-
-    @Column(name = "expected_tax", precision = 19, scale = 4)
-    private BigDecimal expectedTax;
-
-    @Column(name = "tax_gap", precision = 19, scale = 4)
-    private BigDecimal taxGap;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "compliance_status")
-    private ComplianceStatus complianceStatus;
-
-    @Column(name = "raw_payload", columnDefinition = "jsonb")
-    private String rawPayload;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDate createdAt;

@@ -1,20 +1,26 @@
 package com.bank.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import org.springframework.format.annotation.DateTimeFormat;
 
-public record TransactionRequest(
+import java.time.LocalDate;
+import java.util.UUID;
+
+public record TaxTransactionRequest(
 
         @NotBlank(message = "transactionId is required")
-        String transactionId,
+        UUID transactionId,
 
         @NotBlank(message = "date is required")
-        String date,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        LocalDate date,
 
         @NotBlank(message = "customerId is required")
         String customerId,
 
         @NotBlank(message = "amount is required")
+        @Positive(message = "amount must be greater than zero")
         String amount,
 
         String taxRate,

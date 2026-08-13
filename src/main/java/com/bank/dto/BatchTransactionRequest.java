@@ -6,5 +6,5 @@ import java.util.List;
 
 public record BatchTransactionRequest(
         @NotEmpty
-        List<TransactionRequest> transactions
+        List<TaxTransactionRequest> transactions
 ) { }
