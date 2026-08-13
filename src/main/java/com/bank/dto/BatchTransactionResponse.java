@@ -1,5 +1,6 @@
 package com.bank.dto;
 
+
 public class BatchTransactionResponse {
 
     private String batchId;

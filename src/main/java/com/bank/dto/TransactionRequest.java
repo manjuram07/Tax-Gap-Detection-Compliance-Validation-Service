@@ -23,5 +23,4 @@ public record TransactionRequest(
 
         @NotBlank(message = "transactionType is required")
         String transactionType
-) {
-}
+) { }
