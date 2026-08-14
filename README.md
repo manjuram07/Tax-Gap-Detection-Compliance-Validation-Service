@@ -57,6 +57,14 @@ Reporting Service
  Audit Service – Maintains an audit trail for transaction ingestion, tax computation, and rule execution.
  Reporting Service – Generates customer tax summaries and exception summary reports using SQL aggregation.
 
+ ## APIs
+ POST: http://localhost:6000/api/v1/transactions/batch
+ GET: http://localhost:6000/api/v1/transactions/550e8400-e29b-41d4-a716-446655440002
+ POST: http://localhost:6001/api/v1/calculate-tax
+ POST: http://localhost:6001/api/v1/550e8400-e29b-41d4-a716-446655440001
+ GET: http://localhost:6002/api/v1/evaluate
+ GET: http://localhost:6004/api/v1/customers/350e8400-e29b-41d4-a716-446655440005/tax-summary
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
    
 ## 📊 Test Coverage
