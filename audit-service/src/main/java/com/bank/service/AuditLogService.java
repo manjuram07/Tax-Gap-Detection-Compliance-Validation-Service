@@ -4,7 +4,9 @@ import com.bank.domain.AuditLog;
 import com.bank.enums.EventType;
 import com.bank.repository.AuditLogRepository;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +22,6 @@ import java.util.UUID;
 public class AuditLogService {
 
     private final AuditLogRepository auditLogRepository;
-    private final ObjectMapper objectMapper;
 
     public AuditLog logIngestion(UUID transactionId, Map<String, Object> ingestionDetails) {
         return logEvent(
@@ -74,10 +75,6 @@ public class AuditLogService {
         return logEvent(eventType, transactionId, details, correlationId);
     }
 
-    public Map<String, Object> convertJsonNodeToMap(JsonNode jsonNode) {
-        return objectMapper.convertValue(jsonNode, Map.class);
-    }
-
     private AuditLog logEvent(
         EventType eventType,
         UUID transactionId,
@@ -85,7 +82,7 @@ public class AuditLogService {
         String correlationId
     ) {
         try {
-            JsonNode detailJson = objectMapper.valueToTree(details);
+            JsonNode detailJson = mapToJsonNode(details);
 
             AuditLog auditLog = AuditLog.builder()
                 .eventType(eventType)
@@ -107,6 +104,33 @@ public class AuditLogService {
                 eventType, transactionId, e.getMessage(), e);
             throw new RuntimeException("Failed to create audit log", e);
         }
+    }
+
+    private JsonNode mapToJsonNode(Map<String, Object> map) {
+        if (map == null) {
+            return JsonNodeFactory.instance.nullNode();
+        }
+        
+        ObjectNode node = JsonNodeFactory.instance.objectNode();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            Object value = entry.getValue();
+            if (value == null) {
+                node.putNull(entry.getKey());
+            } else if (value instanceof String) {
+                node.put(entry.getKey(), (String) value);
+            } else if (value instanceof Integer) {
+                node.put(entry.getKey(), (Integer) value);
+            } else if (value instanceof Long) {
+                node.put(entry.getKey(), (Long) value);
+            } else if (value instanceof Double) {
+                node.put(entry.getKey(), (Double) value);
+            } else if (value instanceof Boolean) {
+                node.put(entry.getKey(), (Boolean) value);
+            } else {
+                node.put(entry.getKey(), value.toString());
+            }
+        }
+        return node;
     }
 
     public List<AuditLog> getAuditLogsByTransactionId(UUID transactionId) {

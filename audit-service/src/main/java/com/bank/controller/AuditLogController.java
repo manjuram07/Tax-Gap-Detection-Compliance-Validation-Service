@@ -34,7 +34,7 @@ public class AuditLogController {
         AuditLog auditLog = auditLogService.logEventWithDetails(
             request.getEventType(),
             request.getTransactionId(),
-            auditLogService.convertJsonNodeToMap(request.getDetailJson()),
+            request.getDetailJson(),
             request.getCorrelationId()
         );
 
@@ -139,10 +139,39 @@ public class AuditLogController {
             .eventType(auditLog.getEventType())
             .transactionId(auditLog.getTransactionId())
             .eventTimestamp(auditLog.getEventTimestamp())
-            .detailJson(auditLog.getDetailJson())
+            .detailJson(jsonNodeToMap(auditLog.getDetailJson()))
             .correlationId(auditLog.getCorrelationId())
             .serviceName(auditLog.getServiceName())
             .createdAt(auditLog.getCreatedAt())
             .build();
+    }
+
+    private Map<String, Object> jsonNodeToMap(com.fasterxml.jackson.databind.JsonNode jsonNode) {
+        if (jsonNode == null || jsonNode.isNull()) {
+            return Map.of();
+        }
+        
+        Map<String, Object> result = new java.util.HashMap<>();
+        if (jsonNode.isObject()) {
+            jsonNode.fields().forEachRemaining(entry -> {
+                com.fasterxml.jackson.databind.JsonNode value = entry.getValue();
+                if (value.isTextual()) {
+                    result.put(entry.getKey(), value.asText());
+                } else if (value.isInt()) {
+                    result.put(entry.getKey(), value.asInt());
+                } else if (value.isLong()) {
+                    result.put(entry.getKey(), value.asLong());
+                } else if (value.isDouble()) {
+                    result.put(entry.getKey(), value.asDouble());
+                } else if (value.isBoolean()) {
+                    result.put(entry.getKey(), value.asBoolean());
+                } else if (value.isNull()) {
+                    result.put(entry.getKey(), null);
+                } else {
+                    result.put(entry.getKey(), value.toString());
+                }
+            });
+        }
+        return result;
     }
 }
