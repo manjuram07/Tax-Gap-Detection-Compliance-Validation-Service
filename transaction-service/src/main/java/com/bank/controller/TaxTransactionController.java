@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -34,5 +35,11 @@ public class TaxTransactionController {
     public ResponseEntity<List<TaxTransactionResponse>> getAllTaxTransactions() {
         List<TaxTransactionResponse> transactions = taxTransactionService.getAllTaxTransactions();
         return new ResponseEntity<>(transactions, HttpStatus.OK);
+    }
+
+    @GetMapping("/transactions/{transactionId}")
+    public ResponseEntity<TaxTransactionResponse> getTaxTransaction(@PathVariable UUID transactionId) {
+        TaxTransactionResponse transaction = taxTransactionService.getTaxTransaction(transactionId);
+        return new ResponseEntity<>(transaction, HttpStatus.OK);
     }
 }

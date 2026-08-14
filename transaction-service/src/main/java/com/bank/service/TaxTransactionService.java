@@ -14,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class TaxTransactionService {
@@ -55,6 +52,7 @@ public class TaxTransactionService {
         TaxTransaction transaction = new TaxTransaction();
 
         transaction.setCreatedAt(LocalDate.now());
+        transaction.setDate(request.date());
         transaction.setTransactionId(request.transactionId());
         transaction.setAmount(request.amount());
         transaction.setTransactionType(request.transactionType());
@@ -81,5 +79,14 @@ public class TaxTransactionService {
         return transactions.stream()
                 .map(TaxTransactionResponse::from)
                 .toList();
+    }
+
+    public TaxTransactionResponse getTaxTransaction(UUID transactionId){
+
+        Optional<TaxTransaction> transaction = taxTransactionRepository.findByTransactionId(transactionId);
+        if (transaction.isEmpty()) {
+            throw new NoSuchElementException("No Transaction found with ID: " + transactionId);
+        }
+        return TaxTransactionResponse.from(transaction.get());
     }
 }
