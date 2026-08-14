@@ -1,0 +1,212 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TaxTransaction</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.bank.entity</a>
+</div>
+
+<h1>Coverage Summary for Class: TaxTransaction (com.bank.entity)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TaxTransaction</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (1/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (1/2)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">TaxTransaction$HibernateInstantiator$UjxM6VBw</td>
+  </tr>
+  <tr>
+    <td class="name">TaxTransaction$HibernateProxy$nUEsTWXa</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (1/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (1/2)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.bank.entity;
+&nbsp;
+&nbsp;import com.bank.enums.TransactionType;
+&nbsp;import com.bank.enums.ValidationStatus;
+&nbsp;import jakarta.persistence.*;
+&nbsp;import lombok.Data;
+&nbsp;import lombok.Getter;
+&nbsp;import lombok.Setter;
+&nbsp;import org.hibernate.annotations.JdbcTypeCode;
+&nbsp;import org.hibernate.type.SqlTypes;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.time.LocalDate;
+&nbsp;import java.util.UUID;
+&nbsp;
+&nbsp;@Entity
+&nbsp;@Table(
+&nbsp;        name = &quot;tax_transactions&quot;
+&nbsp;//        indexes = {
+&nbsp;//                @Index(name = &quot;idx_tx_customer&quot;, columnList = &quot;customer_id&quot;),
+&nbsp;//                @Index(name = &quot;idx_tx_date&quot;, columnList = &quot;transaction_date&quot;),
+&nbsp;//                @Index(name = &quot;idx_tx_compliance&quot;, columnList = &quot;compliance_status&quot;)
+&nbsp;//        }
+&nbsp;)
+&nbsp;@Getter
+&nbsp;@Setter
+&nbsp;@Data
+&nbsp;public class TaxTransaction {
+&nbsp;
+&nbsp;    @Id
+&nbsp;    @GeneratedValue(strategy = GenerationType.UUID)
+&nbsp;    @JdbcTypeCode(SqlTypes.VARCHAR)
+&nbsp;    private UUID id;
+&nbsp;
+&nbsp;    @Column(name = &quot;transaction_id&quot;, unique = true, nullable = false)
+&nbsp;    @JdbcTypeCode(SqlTypes.VARCHAR)
+&nbsp;    private UUID transactionId;
+&nbsp;
+&nbsp;    @Column(name = &quot;transaction_date&quot;)
+&nbsp;    private LocalDate date;
+&nbsp;
+&nbsp;    @Column(name = &quot;customer_id&quot;)
+&nbsp;    @JdbcTypeCode(SqlTypes.VARCHAR)
+&nbsp;    private UUID customerId;
+&nbsp;
+&nbsp;    @Column(precision = 19, scale = 4)
+&nbsp;    private BigDecimal amount;
+&nbsp;
+&nbsp;    @Column(name = &quot;tax_rate&quot;, precision = 10, scale = 4)
+&nbsp;    private BigDecimal taxRate;
+&nbsp;
+&nbsp;    @Column(name = &quot;reported_tax&quot;, precision = 19, scale = 4)
+&nbsp;    private BigDecimal reportedTax;
+&nbsp;
+&nbsp;    @Enumerated(EnumType.STRING)
+&nbsp;    @Column(name = &quot;transaction_type&quot;)
+&nbsp;    private TransactionType transactionType;
+&nbsp;
+&nbsp;    @Enumerated(EnumType.STRING)
+&nbsp;    @Column(name = &quot;validation_status&quot;, nullable = false)
+&nbsp;    private ValidationStatus validationStatus;
+&nbsp;
+&nbsp;    @Column(name = &quot;failure_reason&quot;, columnDefinition = &quot;TEXT&quot;)
+&nbsp;    private String failureReason;
+&nbsp;
+&nbsp;    @Column(name = &quot;created_at&quot;, nullable = false, updatable = false)
+&nbsp;    private LocalDate createdAt;
+&nbsp;
+&nbsp;    @PrePersist
+&nbsp;    protected void onCreate() {
+<b class="pc">&nbsp;        if (createdAt == null) {</b>
+<b class="nc">&nbsp;            createdAt = LocalDate.now();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-08-14 17:48</div>
+</div>
+</body>
+</html>

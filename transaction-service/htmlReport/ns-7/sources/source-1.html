@@ -1,0 +1,208 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TaxTransactionService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.bank.service</a>
+</div>
+
+<h1>Coverage Summary for Class: TaxTransactionService (com.bank.service)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TaxTransactionService</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    70%
+  </span>
+  <span class="absValue">
+    (7/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    97.1%
+  </span>
+  <span class="absValue">
+    (34/35)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.bank.service;
+&nbsp;
+&nbsp;import com.bank.client.TaxCalculationClient;
+&nbsp;import com.bank.dto.BatchTransactionResponse;
+&nbsp;import com.bank.dto.TaxCalculationResponse;
+&nbsp;import com.bank.dto.TaxTransactionRequest;
+&nbsp;import com.bank.dto.TaxTransactionResponse;
+&nbsp;import com.bank.entity.TaxTransaction;
+&nbsp;import com.bank.enums.ValidationStatus;
+&nbsp;import com.bank.repository.TaxTransactionRepository;
+&nbsp;import com.fasterxml.jackson.core.JsonProcessingException;
+&nbsp;import com.fasterxml.jackson.databind.ObjectMapper;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;
+&nbsp;import java.time.LocalDate;
+&nbsp;import java.util.*;
+&nbsp;
+&nbsp;@Service
+&nbsp;public class TaxTransactionService {
+&nbsp;
+&nbsp;    private final TaxTransactionRepository taxTransactionRepository;
+&nbsp;    private final ObjectMapper objectMapper;
+&nbsp;    private final TaxCalculationClient taxCalculationClient;
+&nbsp;
+<b class="fc">&nbsp;    public TaxTransactionService(TaxTransactionRepository taxTransactionRepository, ObjectMapper objectMapper, TaxCalculationClient taxCalculationClient) {</b>
+<b class="fc">&nbsp;        this.taxTransactionRepository = taxTransactionRepository;</b>
+<b class="fc">&nbsp;        this.objectMapper = objectMapper;</b>
+<b class="fc">&nbsp;        this.taxCalculationClient = taxCalculationClient;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    public BatchTransactionResponse createBatch(List&lt;TaxTransactionRequest&gt; taxTransactionRequest) {
+&nbsp;
+<b class="fc">&nbsp;        List&lt;TaxTransactionResponse&gt; responses = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;        for (TaxTransactionRequest request : taxTransactionRequest) {</b>
+<b class="fc">&nbsp;            TaxTransactionResponse taxTransactionResponse = createTransaction(request);</b>
+<b class="fc">&nbsp;            responses.add(taxTransactionResponse);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        return new BatchTransactionResponse(</b>
+<b class="fc">&nbsp;                taxTransactionRequest.size(),</b>
+<b class="pc">&nbsp;                (int) responses.stream().filter(r -&gt; r.validationStatus() == ValidationStatus.SUCCESS).count(),</b>
+<b class="pc">&nbsp;                (int) responses.stream().filter(r -&gt; r.validationStatus() == ValidationStatus.FAILURE).count(),</b>
+&nbsp;                responses
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    private TaxTransactionResponse createTransaction(TaxTransactionRequest request) {
+&nbsp;
+<b class="fc">&nbsp;        TaxTransaction transaction = new TaxTransaction();</b>
+&nbsp;
+<b class="fc">&nbsp;        transaction.setCreatedAt(LocalDate.now());</b>
+<b class="fc">&nbsp;        transaction.setDate(request.date());</b>
+<b class="fc">&nbsp;        transaction.setTransactionId(request.transactionId());</b>
+<b class="fc">&nbsp;        transaction.setAmount(request.amount());</b>
+<b class="fc">&nbsp;        transaction.setTransactionType(request.transactionType());</b>
+<b class="fc">&nbsp;        transaction.setCustomerId(request.customerId());</b>
+&nbsp;
+<b class="fc">&nbsp;        TaxCalculationResponse taxCalculation = taxCalculationClient.getTaxCalculation(request.transactionId());</b>
+&nbsp;
+<b class="fc">&nbsp;        transaction.setReportedTax(taxCalculation.reportedTax());</b>
+<b class="fc">&nbsp;        transaction.setTaxRate(taxCalculation.taxRate());</b>
+&nbsp;
+<b class="pc">&nbsp;        if(transaction.getValidationStatus() == ValidationStatus.FAILURE) {;</b>
+<b class="nc">&nbsp;            transaction.setFailureReason(&quot;Validation failed for transaction: &quot; + transaction.getTransactionId());</b>
+&nbsp;        } else {
+<b class="fc">&nbsp;            transaction.setValidationStatus(ValidationStatus.SUCCESS);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        taxTransactionRepository.save(transaction);</b>
+&nbsp;
+<b class="fc">&nbsp;        return TaxTransactionResponse.from(transaction);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public List&lt;TaxTransactionResponse&gt; getAllTaxTransactions() {
+<b class="fc">&nbsp;        List&lt;TaxTransaction&gt; transactions = taxTransactionRepository.findAll();</b>
+<b class="fc">&nbsp;        return transactions.stream()</b>
+<b class="fc">&nbsp;                .map(TaxTransactionResponse::from)</b>
+<b class="fc">&nbsp;                .toList();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public TaxTransactionResponse getTaxTransaction(UUID transactionId){
+&nbsp;
+<b class="fc">&nbsp;        Optional&lt;TaxTransaction&gt; transaction = taxTransactionRepository.findByTransactionId(transactionId);</b>
+<b class="fc">&nbsp;        if (transaction.isEmpty()) {</b>
+<b class="fc">&nbsp;            throw new NoSuchElementException(&quot;No Transaction found with ID: &quot; + transactionId);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return TaxTransactionResponse.from(transaction.get());</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-08-14 17:48</div>
+</div>
+</body>
+</html>
