@@ -1,7 +1,7 @@
 package com.bank.domain;
 
-import com.bank.dto.TaxDetails;
 import com.bank.enums.EventType;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -21,17 +21,23 @@ public class AuditLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false, updatable = false)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
     @Column(name = "event_type", nullable = false, length = 50)
+    @Enumerated(EnumType.STRING)
     private EventType eventType;
 
-    @Column(name = "transaction_id", length = 100)
-    private String transactionId;
+    @Column(name = "transaction_id")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    private UUID transactionId;
 
     @Column(name = "event_timestamp", nullable = false)
     private OffsetDateTime eventTimestamp;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "detail_json", columnDefinition = "JSON")
+    private JsonNode detailJson;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "tax_details", columnDefinition = "JSON")

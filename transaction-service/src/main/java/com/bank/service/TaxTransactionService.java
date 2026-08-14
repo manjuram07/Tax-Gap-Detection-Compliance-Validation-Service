@@ -1,9 +1,12 @@
 package com.bank.service;
 
+import com.bank.client.TaxCalculationClient;
 import com.bank.dto.BatchTransactionResponse;
+import com.bank.dto.TaxCalculationResponse;
 import com.bank.dto.TaxTransactionRequest;
 import com.bank.dto.TaxTransactionResponse;
 import com.bank.entity.TaxTransaction;
+import com.bank.enums.ValidationStatus;
 import com.bank.repository.TaxTransactionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,10 +24,12 @@ public class TaxTransactionService {
 
     private final TaxTransactionRepository taxTransactionRepository;
     private final ObjectMapper objectMapper;
+    private final TaxCalculationClient taxCalculationClient;
 
-    public TaxTransactionService(TaxTransactionRepository taxTransactionRepository, ObjectMapper objectMapper) {
+    public TaxTransactionService(TaxTransactionRepository taxTransactionRepository, ObjectMapper objectMapper, TaxCalculationClient taxCalculationClient) {
         this.taxTransactionRepository = taxTransactionRepository;
-        this.objectMapper=objectMapper;
+        this.objectMapper = objectMapper;
+        this.taxCalculationClient = taxCalculationClient;
     }
 
 
@@ -32,13 +37,17 @@ public class TaxTransactionService {
 
         List<TaxTransactionResponse> responses = new ArrayList<>();
 
-
         for (TaxTransactionRequest request : taxTransactionRequest) {
             TaxTransactionResponse taxTransactionResponse = createTransaction(request);
-            responses.add(TaxTransactionResponse.from(taxTransactionResponse));
+            responses.add(taxTransactionResponse);
         }
 
-        return null;
+        return new BatchTransactionResponse(
+                taxTransactionRequest.size(),
+                (int) responses.stream().filter(r -> r.validationStatus() == ValidationStatus.SUCCESS).count(),
+                (int) responses.stream().filter(r -> r.validationStatus() == ValidationStatus.FAILURE).count(),
+                responses
+        );
     }
 
     private TaxTransactionResponse createTransaction(TaxTransactionRequest request) {
@@ -46,10 +55,31 @@ public class TaxTransactionService {
         TaxTransaction transaction = new TaxTransaction();
 
         transaction.setCreatedAt(LocalDate.now());
+        transaction.setTransactionId(request.transactionId());
+        transaction.setAmount(request.amount());
+        transaction.setTransactionType(request.transactionType());
+        transaction.setCustomerId(request.customerId());
 
+        TaxCalculationResponse taxCalculation = taxCalculationClient.getTaxCalculation(request.transactionId());
 
+        transaction.setReportedTax(taxCalculation.reportedTax());
+        transaction.setTaxRate(taxCalculation.taxRate());
 
-            return null;
+        if(transaction.getValidationStatus() == ValidationStatus.FAILURE) {;
+            transaction.setFailureReason("Validation failed for transaction: " + transaction.getTransactionId());
+        } else {
+            transaction.setValidationStatus(ValidationStatus.SUCCESS);
         }
 
+        taxTransactionRepository.save(transaction);
+
+        return TaxTransactionResponse.from(transaction);
     }
+
+    public List<TaxTransactionResponse> getAllTaxTransactions() {
+        List<TaxTransaction> transactions = taxTransactionRepository.findAll();
+        return transactions.stream()
+                .map(TaxTransactionResponse::from)
+                .toList();
+    }
+}

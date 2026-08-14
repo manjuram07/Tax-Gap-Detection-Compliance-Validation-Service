@@ -1,26 +1,35 @@
 package com.bank.dto;
 
 import com.bank.entity.TaxTransaction;
-import com.bank.enums.TransactionType;
+import com.bank.enums.ValidationStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-
 public record TaxTransactionResponse(
+        UUID id,
         UUID transactionId,
-        BigDecimal amount,
-        TransactionType transactionType,
-        LocalDate createdAt
-
+        UUID customerId,
+        ValidationStatus validationStatus,
+        String failureReason,
+        BigDecimal reportedTax,
+        LocalDate createdDate,
+        BigDecimal taxRate
 ) {
-    public static TaxTransactionResponse from(TaxTransactionResponse transaction) {
+
+    public static TaxTransactionResponse from(
+            TaxTransaction taxTransaction) {
+
         return new TaxTransactionResponse(
-                transaction.transactionId(),
-                transaction.amount(),
-                transaction.transactionType(),
-                transaction.createdAt()
+                taxTransaction.getId(),
+                taxTransaction.getTransactionId(),
+                taxTransaction.getCustomerId(),
+                taxTransaction.getValidationStatus(),
+                taxTransaction.getFailureReason(),
+                taxTransaction.getReportedTax(),
+                taxTransaction.getDate(),
+                taxTransaction.getTaxRate()
         );
     }
 }

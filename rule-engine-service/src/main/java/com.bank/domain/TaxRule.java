@@ -2,10 +2,7 @@ package com.bank.domain;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -24,6 +21,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class TaxRule {
 
     @Id
@@ -47,10 +45,14 @@ public class TaxRule {
     private String severity;
 
     @Column(name = "enabled", nullable = false)
-    private Boolean enabled = true;
+    private Boolean enabled;
 
     @Column(name = "version", nullable = false)
     private Integer version = 1;
+
+    // JSON configuration for the rule. Example: { "threshold": 10000, "severity":"HIGH" }
+    @Column(name = "config", columnDefinition = "TEXT")
+    private String config;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;

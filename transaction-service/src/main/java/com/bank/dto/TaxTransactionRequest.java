@@ -1,9 +1,12 @@
 package com.bank.dto;
 
+import com.bank.enums.TransactionType;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -17,16 +20,16 @@ public record TaxTransactionRequest(
         LocalDate date,
 
         @NotBlank(message = "customerId is required")
-        String customerId,
+        UUID customerId,
 
         @NotBlank(message = "amount is required")
         @Positive(message = "amount must be greater than zero")
-        String amount,
+        BigDecimal amount,
 
-        String taxRate,
+        BigDecimal taxRate,
 
-        String reportedTax,
+        BigDecimal reportedTax,
 
         @NotBlank(message = "transactionType is required")
-        String transactionType
+        TransactionType transactionType
 ) { }

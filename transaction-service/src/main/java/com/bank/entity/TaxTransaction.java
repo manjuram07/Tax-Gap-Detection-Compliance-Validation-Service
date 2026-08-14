@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -27,15 +29,18 @@ public class TaxTransaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
     @Column(name = "transaction_id", unique = true, nullable = false)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID transactionId;
 
     @Column(name = "transaction_date")
     private LocalDate date;
 
     @Column(name = "customer_id")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID customerId;
 
     @Column(precision = 19, scale = 4)
