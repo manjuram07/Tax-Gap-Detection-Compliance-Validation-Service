@@ -65,6 +65,7 @@ Reporting Service
  GET: http://localhost:6002/api/v1/evaluate
  GET: http://localhost:6004/api/v1/customers/350e8400-e29b-41d4-a716-446655440005/tax-summary
 
+[API Doc] doc/images/API-document.pdf
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
    
 ## 📊 Test Coverage
