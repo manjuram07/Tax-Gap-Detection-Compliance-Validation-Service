@@ -39,6 +39,7 @@ public class TaxTransactionService {
             responses.add(taxTransactionResponse);
         }
 
+
         return new BatchTransactionResponse(
                 taxTransactionRequest.size(),
                 (int) responses.stream().filter(r -> r.validationStatus() == ValidationStatus.SUCCESS).count(),
@@ -71,7 +72,20 @@ public class TaxTransactionService {
 
         taxTransactionRepository.save(transaction);
 
-        return TaxTransactionResponse.from(transaction);
+        TaxTransactionResponse response = TaxTransactionResponse.from(transaction);
+
+        TaxTransactionRequest transactionRequest = new TaxTransactionRequest(
+                transaction.getTransactionId(),
+                transaction.getDate(),
+                transaction.getCustomerId(),
+                transaction.getAmount(),
+                transaction.getTaxRate(),
+                transaction.getReportedTax(),
+                transaction.getTransactionType()
+        );
+        taxCalculationClient.sendReport(transactionRequest);
+
+        return response;
     }
 
     public List<TaxTransactionResponse> getAllTaxTransactions() {
